@@ -46,38 +46,3 @@ iframe {
     left: 20px; /* Add some space on the left side */
   }
 }
-
-/* Mapbox Geocoder Search Bar Styles */
-.mapboxgl-ctrl-geocoder {
-  width: 100%;
-  max-width: 400px; /* Adjust the max-width as needed */
-  padding: 10px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  font-size: 16px;
-  color: #333;
-  outline: none;
-}
-
-/* Style the search results dropdown (optional) */
-.mapboxgl-ctrl-geocoder .suggestions {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  max-height: 200px; /* Adjust the max-height as needed */
-  overflow-y: auto;
-}
-
-/* Style the search result items (optional) */
-.mapboxgl-ctrl-geocoder .suggestions .suggestion {
-  padding: 10px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.mapboxgl-ctrl-geocoder .suggestions .suggestion:hover {
-  background-color: #f0f0f0;
-}
