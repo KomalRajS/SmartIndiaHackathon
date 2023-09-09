@@ -6,6 +6,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import NavBar from "./Navbar/Navbar";
 import { Card, Button } from "react-bootstrap";
 import axios from "axios";
+import MapboxGeocoder from "mapbox-gl-geocoder";
+import RainLayer from "mapbox-gl-rain-layer";
 
 function Map(props) {
   mapboxgl.accessToken =
@@ -14,7 +16,7 @@ function Map(props) {
   const mapContainer = useRef("map-container");
   const map = useRef(null);
   const [location, setLocation] = useState([0, 0]);
-  const [zoom, setZoom] = useState(9);
+  const [zoom, setZoom] = useState(4);
   const [instructionDisplay, setInstructionDisplay] = useState(false);
   const [locations, setLocations] = useState([]);
   const [showChat, setShowChat] = useState(false);
@@ -121,7 +123,7 @@ function Map(props) {
               "#A7F7B5",
               100,
               "#f1f075",
-              750,
+              500,
               "#f28cb1",
             ],
             "circle-radius": [
@@ -162,16 +164,16 @@ function Map(props) {
         });
 
         map.current.on("click", "clusters", (e) => {
-          const features = map.queryRenderedFeatures(e.point, {
+          const features = map.current.queryRenderedFeatures(e.point, {
             layers: ["clusters"],
           });
           const clusterId = features[0].properties.cluster_id;
-          map
+          map.current
             .getSource("earthquakes")
             .getClusterExpansionZoom(clusterId, (err, zoom) => {
               if (err) return;
 
-              map.easeTo({
+              map.current.easeTo({
                 center: features[0].geometry.coordinates,
                 zoom: zoom,
               });
@@ -179,14 +181,17 @@ function Map(props) {
         });
 
         map.current.on("click", "unclustered-point", (e) => {
-          const text = e.features[0].properties.popUpMarkup;
-          const coordinates = e.features[0].geometry.coordinates.slice();
+          const text = e.features[0].properties.id;
+          const coordinates = e.features[0].geometry.coordinates;
 
           while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
           }
 
-          new mapboxgl.Popup().setLngLat(coordinates).setHTML(text).addTo(map);
+          new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(text)
+            .addTo(map.current);
         });
 
         map.current.on("mouseenter", "clusters", () => {
@@ -195,27 +200,14 @@ function Map(props) {
         map.current.on("mouseleave", "clusters", () => {
           map.current.getCanvas().style.cursor = "";
         });
-      locations.forEach((loc) => {
-        new mapboxgl.Marker({
-          color: "#FF0000",
-        })
-          .setLngLat([
-            loc.rest.geometry.coordinates[1],
-            loc.rest.geometry.coordinates[0],
-          ])
-          .setPopup(
-            new mapboxgl.Popup().setHTML(`
-              <a href='/rescue/dashboard/${loc._id}' ><h4>${loc.username}</h4></a>
-          `)
-          )
-          .addTo(map.current);
       });
     }
+
     if (map.current) return;
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/nagaraj-poojari/clmbjvzva017201qu57augk"
-      center: [76, 14],
+      style: "mapbox://styles/nagaraj-poojari/clmbjvzva017201qu57augk40",
+      center: [80.1128, 23.6345],
       zoom: zoom,
     });
 
@@ -398,7 +390,14 @@ function Map(props) {
               accessToken={mapboxgl.accessToken}
               marker={true}
               map={map.current}
-              mapboxgl={new mapboxgl.Marker()}
+              placeholder="search places"
+              value=""
+              mapboxgl={mapboxgl}
+              popoverOptions={{
+                placement: "top-start",
+                flip: true,
+                offset: 5,
+              }}
             />
           }
         />
