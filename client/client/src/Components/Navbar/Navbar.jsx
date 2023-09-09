@@ -37,7 +37,7 @@ const NavBar = () => {
             <Form.Control
               type="search"
               placeholder="Search"
-              className="me-2 mapboxgl-ctrl-geocode"
+              className="me-2"
               aria-label="Search"
             />
             <Button variant="outline-success">Search</Button>
