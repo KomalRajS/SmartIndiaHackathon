@@ -6,8 +6,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import NavBar from "./Navbar/Navbar";
 import { Card, Button } from "react-bootstrap";
 import axios from "axios";
-import MapboxGeocoder from "mapbox-gl-geocoder";
-import RainLayer from "mapbox-gl-rain-layer";
 
 function Map(props) {
   mapboxgl.accessToken =
@@ -200,6 +198,20 @@ function Map(props) {
         map.current.on("mouseleave", "clusters", () => {
           map.current.getCanvas().style.cursor = "";
         });
+      locations.forEach((loc) => {
+        new mapboxgl.Marker({
+          color: "#FF0000",
+        })
+          .setLngLat([
+            loc.rest.geometry.coordinates[1],
+            loc.rest.geometry.coordinates[0],
+          ])
+          .setPopup(
+            new mapboxgl.Popup().setHTML(`
+              <a href='/rescue/dashboard/${loc._id}' ><h4>${loc.username}</h4></a>
+          `)
+          )
+          .addTo(map.current);
       });
     }
     if (map.current) return;
@@ -219,6 +231,7 @@ function Map(props) {
 
     map.current.addControl(geolocate);
 
+    // Listen for the `geolocate` event to get the user's location
     geolocate.on("geolocate", (event) => {
       const { latitude, longitude } = event.coords;
       setLocation([longitude, latitude]);
@@ -301,7 +314,7 @@ function Map(props) {
       map.current.on("load", () => {
         getRoute(location);
 
-        // Add   locationing point to the map
+        // Add locationing point to the map
         map.current.addLayer({
           id: "point",
           type: "circle",
