@@ -18,7 +18,7 @@ const NavBar = ({ searchbox }) => {
       data-bs-theme="dark"
     >
       <Container fluid>
-        <Navbar.Brand href="#">💡 Samrt India Hackathon</Navbar.Brand>
+        <Navbar.Brand href="#">💡 Smart India Hackathon</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
           <Nav
