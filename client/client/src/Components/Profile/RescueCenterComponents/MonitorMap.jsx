@@ -1,29 +1,23 @@
 import React from "react";
 import { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
-import { SearchBox } from "@mapbox/search-js-react";
 import "mapbox-gl/dist/mapbox-gl.css";
-import NavBar from "./Navbar/Navbar";
-import { Card, Button } from "react-bootstrap";
+
+import Card from "react-bootstrap/Card";
 import axios from "axios";
 import MapboxGeocoder from "mapbox-gl-geocoder";
 import RainLayer from "mapbox-gl-rain-layer";
 
-function Map(props) {
+function MonitorMap(props) {
   mapboxgl.accessToken =
     "pk.eyJ1IjoibmFnYXJhai1wb29qYXJpIiwiYSI6ImNsOGw1M3d6ZjF3bmIzdXF4dzJzbDI0OXMifQ.YKQSwfcvRCUlD4Vx0pKpyQ";
 
   const mapContainer = useRef("map-container");
-  const [showChat, setShowChat] = useState(false);
   const map = useRef(null);
   const [location, setLocation] = useState([0, 0]);
   const [zoom, setZoom] = useState(9);
   const [instructionDisplay, setInstructionDisplay] = useState(false);
   const [locations, setLocations] = useState([]);
-
-  const toggleChat = () => {
-    setShowChat(!showChat);
-  };
 
   useEffect(() => {
     if (map && locations.length > 0) {
@@ -44,18 +38,25 @@ function Map(props) {
         const geocoder = new MapboxGeocoder({
           accessToken: mapboxgl.accessToken,
           mapboxgl: mapboxgl,
-          marker: false,
+          marker: true,
           placeholder: "Search for places",
           render: function (item) {
-            // Customize the appearance of each search result item
-            return (
-              '<div class="custom-geocoder-item">' + item.place_name + "</div>"
-            );
+            return '<div class="custom-geocoder-item">' + item + "</div>";
           },
         });
 
+        let marker = null;
+        geocoder.on("result", function (event) {
+          const selectedLocation = event.result;
+          if (marker) {
+            marker.remove();
+          }
+          marker = new mapboxgl.Marker()
+            .setLngLat(selectedLocation.geometry.coordinates)
+            .addTo(map.current);
+          map.current.setCenter(selectedLocation.geometry.coordinates);
+        });
         //map.current.addControl(geocoder);
-
         map.current.on("load", () => {
           map.current.addSource("single-point", {
             type: "geojson",
@@ -71,7 +72,7 @@ function Map(props) {
             type: "circle",
             paint: {
               "circle-radius": 10,
-              "circle-color": "#448ee4",
+              "circle-color": "#FF0E0E",
             },
           });
 
@@ -89,11 +90,8 @@ function Map(props) {
         });
         map.current.addLayer(rainLayer);
 
-        // You can get the HTML text for the legend
         const legendHTML = rainLayer.getLegendHTML();
 
-        // You can receive radar data refresh events
-        // data.timestamp - Unix timestamp in seconds (UTC) when the data was generated
         rainLayer.on("refresh", (data) => {
           console.log(data.timestamp);
         });
@@ -104,94 +102,109 @@ function Map(props) {
             type: "FeatureCollection",
             features: geoJsonFeatures,
           },
-          cluster: true,
-          clusterMaxZoom: 14,
-          clusterRadius: 150,
         });
 
-        map.current.addLayer({
-          id: "clusters",
-          type: "circle",
-          source: "earthquakes",
-          filter: ["has", "point_count"],
-          paint: {
-            "circle-color": [
-              "step",
-              ["get", "point_count"],
-              "#A6F0A1",
-              100,
-              "#f1f075",
-              750,
-              "#f28cb1",
-            ],
-            "circle-radius": [
-              "step",
-              ["get", "point_count"],
-              20,
-              100,
-              30,
-              750,
-              40,
-            ],
+        map.current.addLayer(
+          {
+            id: "trees-heat",
+            type: "heatmap",
+            source: "earthquakes",
+            maxzoom: 15,
+            paint: {
+              // increase weight as diameter breast height increases
+              "heatmap-weight": {
+                property: "dbh",
+                type: "exponential",
+                stops: [
+                  [1, 0],
+                  [62, 1],
+                ],
+              },
+              // increase intensity as zoom level increases
+              "heatmap-intensity": {
+                stops: [
+                  [11, 1],
+                  [15, 3],
+                ],
+              },
+              // assign color values be applied to points depending on their density
+              "heatmap-color": [
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0,
+                "rgba(236,222,239,0)",
+                0.2,
+                "rgb(208,209,230)",
+                0.4,
+                "rgb(166,189,219)",
+                0.6,
+                "rgb(103,169,207)",
+                0.8,
+                "rgb(28,144,153)",
+              ],
+              // increase radius as zoom increases
+              "heatmap-radius": {
+                stops: [
+                  [11, 15],
+                  [15, 20],
+                ],
+              },
+              // decrease opacity to transition into the circle layer
+              "heatmap-opacity": {
+                default: 1,
+                stops: [
+                  [14, 1],
+                  [15, 0],
+                ],
+              },
+            },
           },
-        });
-
-        map.current.addLayer({
-          id: "cluster-count",
-          type: "symbol",
-          source: "earthquakes",
-          filter: ["has", "point_count"],
-          layout: {
-            "text-field": ["get", "point_count_abbreviated"],
-            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-            "text-size": 12,
+          "waterway-label"
+        );
+        map.current.addLayer(
+          {
+            id: "trees-point",
+            type: "circle",
+            source: "earthquakes",
+            minzoom: 14,
+            paint: {
+              // increase the radius of the circle as the zoom level and dbh value increases
+              "circle-radius": {
+                property: "dbh",
+                type: "exponential",
+                stops: [
+                  [{ zoom: 15, value: 1 }, 5],
+                  [{ zoom: 15, value: 62 }, 10],
+                  [{ zoom: 22, value: 1 }, 20],
+                  [{ zoom: 22, value: 62 }, 50],
+                ],
+              },
+              "circle-color": {
+                property: "dbh",
+                type: "exponential",
+                stops: [
+                  [0, "rgba(236,222,239,0)"],
+                  [10, "rgb(236,222,239)"],
+                  [20, "rgb(208,209,230)"],
+                  [30, "rgb(166,189,219)"],
+                  [40, "rgb(103,169,207)"],
+                  [50, "rgb(28,144,153)"],
+                  [60, "rgb(1,108,89)"],
+                ],
+              },
+              "circle-stroke-color": "white",
+              "circle-stroke-width": 1,
+              "circle-opacity": {
+                stops: [
+                  [14, 0],
+                  [15, 1],
+                ],
+              },
+            },
           },
-        });
-
-        map.current.addLayer({
-          id: "unclustered-point",
-          type: "circle",
-          source: "earthquakes",
-          filter: ["!", ["has", "point_count"]],
-          paint: {
-            "circle-color": "#11b4da",
-            "circle-radius": 10,
-            "circle-stroke-width": 3,
-            "circle-stroke-color": "#fff",
-          },
-        });
-
-        map.current.on("click", "clusters", (e) => {
-          const features = map.current.queryRenderedFeatures(e.point, {
-            layers: ["clusters"],
-          });
-          const clusterId = features[0].properties.cluster_id;
-          map.current
-            .getSource("earthquakes")
-            .getClusterExpansionZoom(clusterId, (err, zoom) => {
-              if (err) return;
-
-              map.current.easeTo({
-                center: features[0].geometry.coordinates,
-                zoom: zoom,
-              });
-            });
-        });
-
-        map.current.on("click", "unclustered-point", (e) => {
-          const coordinates = e.features[0].geometry.coordinates.slice();
-          const id = e.features[0].properties.id;
-          const centername = e.features[0].properties.centername;
-
-          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-          }
-
-          new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML(`${centername} : ${id}`)
-            .addTo(map.current);
-        });
+          "waterway-label"
+        );
 
         map.current.on("mouseenter", "clusters", () => {
           map.current.getCanvas().style.cursor = "pointer";
@@ -229,10 +242,11 @@ function Map(props) {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/rescue/${props.url}`
+          `http://localhost:4000/rescue/${props.url}/${props.id}`
         );
         const { data } = response;
         setLocations(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching data from the backend:", error);
       }
@@ -380,32 +394,6 @@ function Map(props) {
   return (
     <>
       <div>
-        <NavBar
-          searchbox={
-            <SearchBox
-              accessToken={mapboxgl.accessToken}
-              marker={true}
-              map={map.current}
-              mapboxgl={new mapboxgl.Marker()}
-            />
-          }
-        />
-      </div>
-      <div className="chat-button">
-        {showChat && (
-          <iframe
-            width="350"
-            height="430"
-            allow="microphone;"
-            className="chat-window"
-            src="https://console.dialogflow.com/api-client/demo/embedded/7130a9d5-5926-40a1-ab4c-732d73178eab"
-          ></iframe>
-        )}
-        <button onClick={toggleChat} className="chat-toggle-button">
-          🤖
-        </button>
-      </div>
-      <div>
         <Card
           body
           id="instructions"
@@ -421,4 +409,4 @@ function Map(props) {
   );
 }
 
-export default Map;
+export default MonitorMap;
