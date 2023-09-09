@@ -5,7 +5,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-const NavBar = () => {
+const NavBar = ({ searchbox }) => {
   const [logo, setlogo] = useState();
 
   const logoclick = () => {};
@@ -18,7 +18,7 @@ const NavBar = () => {
       data-bs-theme="dark"
     >
       <Container fluid>
-        <Navbar.Brand href="#">Navbar scroll</Navbar.Brand>
+        <Navbar.Brand href="#">💡 Samrt India Hackathon</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
           <Nav
@@ -33,6 +33,8 @@ const NavBar = () => {
               Link
             </Nav.Link>
           </Nav>
+
+          <Form className="d-flex justify-content-start">{searchbox}</Form>
           <Form className="d-flex">
             <Form.Control
               type="search"
@@ -42,6 +44,7 @@ const NavBar = () => {
             />
             <Button variant="outline-success">Search</Button>
           </Form>
+
         </Navbar.Collapse>
       </Container>
     </Navbar>

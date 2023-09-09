@@ -1,9 +1,10 @@
 import React from "react";
 import { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
+import { SearchBox } from "@mapbox/search-js-react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import NavBar from "./Navbar/Navbar";
-import Card from "react-bootstrap/Card";
+import { Card, Button } from "react-bootstrap";
 import axios from "axios";
 
 function Map(props) {
@@ -16,9 +17,184 @@ function Map(props) {
   const [zoom, setZoom] = useState(9);
   const [instructionDisplay, setInstructionDisplay] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [showChat, setShowChat] = useState(false);
+  const toggleChat = () => {
+    setShowChat(!showChat);
+  };
 
   useEffect(() => {
     if (map && locations.length > 0) {
+      const geoJsonFeatures = locations.map((location) => ({
+        type: "Feature",
+        properties: {
+          id: location._id,
+          centername: location.username,
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [...location.rest.geometry.coordinates.reverse(), 0.0],
+        },
+      }));
+
+      map.current.on("load", () => {
+        const geocoder = new MapboxGeocoder({
+          accessToken: mapboxgl.accessToken,
+          mapboxgl: mapboxgl,
+          marker: true,
+          placeholder: "Search for places",
+          render: function (item) {
+            return '<div class="custom-geocoder-item">' + item + "</div>";
+          },
+        });
+
+        let marker = null;
+        geocoder.on("result", function (event) {
+          const selectedLocation = event.result;
+          if (marker) {
+            marker.remove();
+          }
+          marker = new mapboxgl.Marker()
+            .setLngLat(selectedLocation.geometry.coordinates)
+            .addTo(map.current);
+          map.current.setCenter(selectedLocation.geometry.coordinates);
+        });
+        //map.current.addControl(geocoder);
+        map.current.on("load", () => {
+          map.current.addSource("single-point", {
+            type: "geojson",
+            data: {
+              type: "FeatureCollection",
+              features: [],
+            },
+          });
+
+          map.current.addLayer({
+            id: "point",
+            source: "single-point",
+            type: "circle",
+            paint: {
+              "circle-radius": 10,
+              "circle-color": "#FF0E0E",
+            },
+          });
+
+          geocoder.on("result", (event) => {
+            map.current
+              .getSource("single-point")
+              .setData(event.result.geometry);
+          });
+        });
+
+        const rainLayer = new RainLayer({
+          id: "rain",
+          source: "rainviewer",
+          scale: "noaa",
+        });
+        map.current.addLayer(rainLayer);
+
+        const legendHTML = rainLayer.getLegendHTML();
+
+        rainLayer.on("refresh", (data) => {
+          console.log(data.timestamp);
+        });
+
+        map.current.addSource("earthquakes", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: geoJsonFeatures,
+          },
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 100,
+        });
+
+        map.current.addLayer({
+          id: "clusters",
+          type: "circle",
+          source: "earthquakes",
+          filter: ["has", "point_count"],
+          paint: {
+            "circle-color": [
+              "step",
+              ["get", "point_count"],
+              "#A7F7B5",
+              100,
+              "#f1f075",
+              750,
+              "#f28cb1",
+            ],
+            "circle-radius": [
+              "step",
+              ["get", "point_count"],
+              20,
+              100,
+              30,
+              750,
+              40,
+            ],
+          },
+        });
+
+        map.current.addLayer({
+          id: "cluster-count",
+          type: "symbol",
+          source: "earthquakes",
+          filter: ["has", "point_count"],
+          layout: {
+            "text-field": "{point_count_abbreviated}",
+            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+            "text-size": 12,
+          },
+        });
+
+        map.current.addLayer({
+          id: "unclustered-point",
+          type: "circle",
+          source: "earthquakes",
+          filter: ["!", ["has", "point_count"]],
+          paint: {
+            "circle-color": "#11b4da",
+            "circle-radius": 4,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#fff",
+          },
+        });
+
+        map.current.on("click", "clusters", (e) => {
+          const features = map.queryRenderedFeatures(e.point, {
+            layers: ["clusters"],
+          });
+          const clusterId = features[0].properties.cluster_id;
+          map
+            .getSource("earthquakes")
+            .getClusterExpansionZoom(clusterId, (err, zoom) => {
+              if (err) return;
+
+              map.easeTo({
+                center: features[0].geometry.coordinates,
+                zoom: zoom,
+              });
+            });
+        });
+
+        map.current.on("click", "unclustered-point", (e) => {
+          const text = e.features[0].properties.popUpMarkup;
+          const coordinates = e.features[0].geometry.coordinates.slice();
+
+          while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+          }
+
+          new mapboxgl.Popup().setLngLat(coordinates).setHTML(text).addTo(map);
+        });
+
+        map.current.on("mouseenter", "clusters", () => {
+          map.current.getCanvas().style.cursor = "pointer";
+        });
+        map.current.on("mouseleave", "clusters", () => {
+          map.current.getCanvas().style.cursor = "";
+        });
       locations.forEach((loc) => {
         new mapboxgl.Marker({
           color: "#FF0000",
@@ -38,7 +214,7 @@ function Map(props) {
     if (map.current) return;
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      style: "mapbox://styles/nagaraj-poojari/clmbjvzva017201qu57augk"
       center: [76, 14],
       zoom: zoom,
     });
@@ -68,6 +244,7 @@ function Map(props) {
         );
         const { data } = response;
         setLocations(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching data from the backend:", error);
       }
@@ -215,20 +392,32 @@ function Map(props) {
   return (
     <>
       <div>
-        <NavBar />
-      </div>
-      <div>
-        <Card
-          body
-          id="instructions"
-          className={
-            instructionDisplay
-              ? "bg-dark text-white "
-              : "bg-dark text-white d-none"
+        <NavBar
+          searchbox={
+            <SearchBox
+              accessToken={mapboxgl.accessToken}
+              marker={true}
+              map={map.current}
+              mapboxgl={new mapboxgl.Marker()}
+            />
           }
-        ></Card>
-        <div ref={mapContainer} className="map-container" />
+        />
       </div>
+      <div className="chat-button">
+        {showChat && (
+          <iframe
+            width="350"
+            height="430"
+            allow="microphone;"
+            className="chat-window"
+            src="https://console.dialogflow.com/api-client/demo/embedded/7130a9d5-5926-40a1-ab4c-732d73178eab"
+          ></iframe>
+        )}
+        <button onClick={toggleChat} className="chat-toggle-button">
+          🤖
+        </button>
+      </div>
+      <div ref={mapContainer} className="map-container" />
     </>
   );
 }

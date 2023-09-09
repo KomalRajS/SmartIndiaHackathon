@@ -86,6 +86,8 @@ app.use("/auth", rescuerAuthRoutes);
 
 const allRescueCentersDataRoutes = require("./router/RescueCenterRoutes/rescueData");
 app.use("/rescue", allRescueCentersDataRoutes);
+const allRequestsData = require("./router/RescueCenterRoutes/RequestsData");
+app.use("/rescue", allRequestsData);
 
 const rescueCenterDashboard = require("./router/RescueCenterRoutes/dashboard");
 app.use("/rescue", rescueCenterDashboard);

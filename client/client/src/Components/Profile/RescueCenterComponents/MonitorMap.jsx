@@ -33,7 +33,6 @@ function MonitorMap(props) {
         },
       }));
 
-      console.log(geoJsonFeatures);
       map.current.on("load", () => {
         const geocoder = new MapboxGeocoder({
           accessToken: mapboxgl.accessToken,
@@ -102,7 +101,6 @@ function MonitorMap(props) {
             type: "FeatureCollection",
             features: geoJsonFeatures,
           },
-<<<<<<< HEAD
         });
 
         map.current.addLayer(
@@ -206,7 +204,7 @@ function MonitorMap(props) {
           },
           "waterway-label"
         );
-=======
+
           cluster: true,
           clusterMaxZoom: 14,
           clusterRadius: 150,
@@ -263,7 +261,6 @@ function MonitorMap(props) {
             "circle-stroke-color": "#fff",
           },
         });
->>>>>>> 32b1339a533f7e94d252fc80dc624dad89144464
 
         map.current.on("mouseenter", "clusters", () => {
           map.current.getCanvas().style.cursor = "pointer";
@@ -276,11 +273,9 @@ function MonitorMap(props) {
     if (map.current) return;
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-<<<<<<< HEAD
+
       style: "mapbox://styles/nagaraj-poojari/clmbjvzva017201qu57augk40",
-=======
-      style: "mapbox://styles/nagaraj-poojari/clmbfmxxu018q01pb3fck067y",
->>>>>>> 32b1339a533f7e94d252fc80dc624dad89144464
+
       center: [76, 14],
       zoom: zoom,
     });
