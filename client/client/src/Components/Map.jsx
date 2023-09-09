@@ -14,13 +14,12 @@ function Map(props) {
     "pk.eyJ1IjoibmFnYXJhai1wb29qYXJpIiwiYSI6ImNsOGw1M3d6ZjF3bmIzdXF4dzJzbDI0OXMifQ.YKQSwfcvRCUlD4Vx0pKpyQ";
 
   const mapContainer = useRef("map-container");
-  const [showChat, setShowChat] = useState(false);
   const map = useRef(null);
   const [location, setLocation] = useState([0, 0]);
   const [zoom, setZoom] = useState(9);
   const [instructionDisplay, setInstructionDisplay] = useState(false);
   const [locations, setLocations] = useState([]);
-
+  const [showChat, setShowChat] = useState(false);
   const toggleChat = () => {
     setShowChat(!showChat);
   };
@@ -39,23 +38,29 @@ function Map(props) {
         },
       }));
 
-      console.log(geoJsonFeatures);
       map.current.on("load", () => {
         const geocoder = new MapboxGeocoder({
           accessToken: mapboxgl.accessToken,
           mapboxgl: mapboxgl,
-          marker: false,
+          marker: true,
           placeholder: "Search for places",
           render: function (item) {
-            // Customize the appearance of each search result item
-            return (
-              '<div class="custom-geocoder-item">' + item.place_name + "</div>"
-            );
+            return '<div class="custom-geocoder-item">' + item + "</div>";
           },
         });
 
+        let marker = null;
+        geocoder.on("result", function (event) {
+          const selectedLocation = event.result;
+          if (marker) {
+            marker.remove();
+          }
+          marker = new mapboxgl.Marker()
+            .setLngLat(selectedLocation.geometry.coordinates)
+            .addTo(map.current);
+          map.current.setCenter(selectedLocation.geometry.coordinates);
+        });
         //map.current.addControl(geocoder);
-
         map.current.on("load", () => {
           map.current.addSource("single-point", {
             type: "geojson",
@@ -71,7 +76,7 @@ function Map(props) {
             type: "circle",
             paint: {
               "circle-radius": 10,
-              "circle-color": "#448ee4",
+              "circle-color": "#FF0E0E",
             },
           });
 
@@ -89,11 +94,8 @@ function Map(props) {
         });
         map.current.addLayer(rainLayer);
 
-        // You can get the HTML text for the legend
         const legendHTML = rainLayer.getLegendHTML();
 
-        // You can receive radar data refresh events
-        // data.timestamp - Unix timestamp in seconds (UTC) when the data was generated
         rainLayer.on("refresh", (data) => {
           console.log(data.timestamp);
         });
@@ -106,7 +108,7 @@ function Map(props) {
           },
           cluster: true,
           clusterMaxZoom: 14,
-          clusterRadius: 150,
+          clusterRadius: 100,
         });
 
         map.current.addLayer({
@@ -118,7 +120,7 @@ function Map(props) {
             "circle-color": [
               "step",
               ["get", "point_count"],
-              "#A6F0A1",
+              "#A7F7B5",
               100,
               "#f1f075",
               750,
@@ -142,7 +144,7 @@ function Map(props) {
           source: "earthquakes",
           filter: ["has", "point_count"],
           layout: {
-            "text-field": ["get", "point_count_abbreviated"],
+            "text-field": "{point_count_abbreviated}",
             "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
             "text-size": 12,
           },
@@ -155,23 +157,23 @@ function Map(props) {
           filter: ["!", ["has", "point_count"]],
           paint: {
             "circle-color": "#11b4da",
-            "circle-radius": 10,
-            "circle-stroke-width": 3,
+            "circle-radius": 4,
+            "circle-stroke-width": 1,
             "circle-stroke-color": "#fff",
           },
         });
 
         map.current.on("click", "clusters", (e) => {
-          const features = map.current.queryRenderedFeatures(e.point, {
+          const features = map.queryRenderedFeatures(e.point, {
             layers: ["clusters"],
           });
           const clusterId = features[0].properties.cluster_id;
-          map.current
+          map
             .getSource("earthquakes")
             .getClusterExpansionZoom(clusterId, (err, zoom) => {
               if (err) return;
 
-              map.current.easeTo({
+              map.easeTo({
                 center: features[0].geometry.coordinates,
                 zoom: zoom,
               });
@@ -179,18 +181,14 @@ function Map(props) {
         });
 
         map.current.on("click", "unclustered-point", (e) => {
+          const text = e.features[0].properties.popUpMarkup;
           const coordinates = e.features[0].geometry.coordinates.slice();
-          const id = e.features[0].properties.id;
-          const centername = e.features[0].properties.centername;
 
           while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
             coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
           }
 
-          new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML(`${centername} : ${id}`)
-            .addTo(map.current);
+          new mapboxgl.Popup().setLngLat(coordinates).setHTML(text).addTo(map);
         });
 
         map.current.on("mouseenter", "clusters", () => {
@@ -233,6 +231,7 @@ function Map(props) {
         );
         const { data } = response;
         setLocations(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching data from the backend:", error);
       }
@@ -405,18 +404,7 @@ function Map(props) {
           🤖
         </button>
       </div>
-      <div>
-        <Card
-          body
-          id="instructions"
-          className={
-            instructionDisplay
-              ? "bg-dark text-white "
-              : "bg-dark text-white d-none"
-          }
-        ></Card>
-        <div ref={mapContainer} className="map-container" />
-      </div>
+      <div ref={mapContainer} className="map-container" />
     </>
   );
 }

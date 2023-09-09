@@ -33,7 +33,6 @@ function MonitorMap(props) {
         },
       }));
 
-      console.log(geoJsonFeatures);
       map.current.on("load", () => {
         const geocoder = new MapboxGeocoder({
           accessToken: mapboxgl.accessToken,
