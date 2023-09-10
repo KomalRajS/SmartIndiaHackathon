@@ -16,6 +16,9 @@ const path = require("path");
 const ejsMate = require("ejs-mate");
 const User = require("./models/user");
 
+//socket server
+const PORT = process.env.PORT || 4000;
+
 const corsOptions = {
   origin: "http://localhost:3000", // Set the correct origin
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -33,10 +36,8 @@ app.use(urlencoded({ extended: true }));
 //setting body parser
 app.use(bodyParser.json());
 
-const port = process.env.PORT || 4000;
 const dbUrl =
   process.env.MONGODB_URL || "mongodb://localhost:27017/template-db";
-
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -92,6 +93,69 @@ app.use("/rescue", allRequestsData);
 const rescueCenterDashboard = require("./router/RescueCenterRoutes/dashboard");
 app.use("/rescue", rescueCenterDashboard);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+const http = require("http"); // You'll need the http module for Socket.IO
+const { Server } = require("socket.io");
+const { v4: uuidv4 } = require("uuid");
+const server = http.createServer(app);
+
+//cors
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+
+//socket route
+
+app.get("/socket.io/socket.io.js", (req, res) => {
+  res.sendFile(__dirname + "/node_modules/socket.io-client/dist/socket.io.js");
+});
+
+io.use((socket, next) => {
+  const username = socket.handshake.auth.username;
+  if (!username) {
+    return next(new Error("Invalid username"));
+  }
+
+  socket.username = username;
+  socket.userId = uuidv4();
+  next();
+});
+
+io.on("connection", async (socket) => {
+  //all connected users
+  const users = [];
+  for (let [id, socket] of io.of("/").sockets) {
+    users.push({
+      userId: socket.userId,
+      username: socket.username,
+    });
+  }
+
+  //all users event
+  socket.emit("users", users);
+
+  //connected user details
+  socket.emit("session", { userId: socket.userId, username: socket.username });
+
+  //new user events
+  socket.broadcast.emit("user connected", {
+    userId: socket.userId,
+    username: socket.username,
+  });
+
+  //new message event
+  socket.on("new message", (message) => {
+    socket.broadcast.emit("new message", {
+      userId: socket.userId,
+      username: socket.username,
+      message,
+    });
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

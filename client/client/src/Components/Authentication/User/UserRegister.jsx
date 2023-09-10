@@ -62,8 +62,7 @@ function UserRegister() {
       !phoneNo ||
       !username ||
       !authotp ||
-      !countryCode ||
-      !rescueTeamId
+      !countryCode
     ) {
       event.preventDefault();
       alert("enter all the details correctly");
@@ -103,6 +102,12 @@ function UserRegister() {
           <h3 className="mb-3 fs-1 fw-normal">Sign up </h3>
           <Form.Group controlId="formGridPassword">
             <Form.Label>Username</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder=""
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </Form.Group>
 
           <Row className="mb-3">

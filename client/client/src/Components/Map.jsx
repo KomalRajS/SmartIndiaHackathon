@@ -20,6 +20,7 @@ function Map(props) {
   const [instructionDisplay, setInstructionDisplay] = useState(false);
   const [locations, setLocations] = useState([]);
   const [showChat, setShowChat] = useState(false);
+  const [transportMode, setTransportMode] = useState("driving");
   const toggleChat = () => {
     setShowChat(!showChat);
   };
@@ -252,7 +253,7 @@ function Map(props) {
       });
       async function getRoute(end) {
         const query = await fetch(
-          `https://api.mapbox.com/directions/v5/mapbox/cycling/${location[0]},${location[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
+          `https://api.mapbox.com/directions/v5/mapbox/${transportMode}/${location[0]},${location[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
           { method: "GET" }
         );
         const json = await query.json();
@@ -289,6 +290,7 @@ function Map(props) {
           });
         }
         const instructions = document.getElementById("instructions");
+        console.log(data);
         const steps = data.legs[0].steps;
 
         let tripInstructions = "";
@@ -398,10 +400,16 @@ function Map(props) {
                 flip: true,
                 offset: 5,
               }}
+              options={{
+                language: "en",
+                country: "IN",
+              }}
             />
           }
         />
       </div>
+      <Card className="instructions d-none" id="instructions"></Card>
+
       <div className="chat-button">
         {showChat && (
           <iframe
