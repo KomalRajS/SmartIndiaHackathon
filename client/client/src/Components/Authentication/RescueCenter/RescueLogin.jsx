@@ -3,7 +3,7 @@ import NavBar from "../../Navbar/Navbar";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 
 const formStyle = {
@@ -15,7 +15,7 @@ function RescueLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-
+  const navigate = useNavigate();
   async function handlesubmit(event) {
     event.preventDefault();
 
@@ -34,7 +34,9 @@ function RescueLogin() {
 
       setMessage(response.data.message);
     } catch (error) {
-      console.log(error);
+      navigate("/error", {
+        state: [error.message, error.response.status],
+      });
     }
   }
 

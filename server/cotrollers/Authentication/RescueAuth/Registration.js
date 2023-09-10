@@ -27,12 +27,10 @@ module.exports.register = async (req, res) => {
       if (err) {
         return next(err);
       }
-      req.flash("success", "Registered Successfully");
-      res.send("account created succefully");
+      res.send({ user: req.user, message: "Registered successfully" });
     });
   } catch (e) {
     console.log(e.message);
-    req.flash("error", e.message);
-    res.redirect("/auth/rescuer/register");
+    res.status(409).send({ message: e.message });
   }
 };

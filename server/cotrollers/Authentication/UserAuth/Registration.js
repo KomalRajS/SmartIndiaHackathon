@@ -12,18 +12,20 @@ module.exports.register = async (req, res) => {
     } = req.body;
 
     const contact = { country_code, phone_no };
-    const user = new User({ email, username, contact });
+    const user = new User({
+      email,
+      username,
+      contact,
+      rescue_team: rescue_team_id,
+    });
     const registeredUser = await User.register(user, password);
     req.login(registeredUser, (err) => {
       if (err) {
         return next(err);
       }
-      req.flash("success", "Registered Successfully");
-      res.redirect("/");
     });
+    res.send({ user: req.user, message: "Registered successfully" });
   } catch (e) {
-    console.log(e.message);
-    req.flash("error", e.message);
-    res.redirect("/auth/user/register");
+    res.status(409).send({ message: e.message });
   }
 };

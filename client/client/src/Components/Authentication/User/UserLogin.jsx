@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import NavBar from "../../Navbar/Navbar";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import axios from "axios";
-const formStyle = {
-  maxWidth: "400px", // Adjust the maximum width as needed
-  width: "100%",
-};
+import { useUserContext } from "../../Context";
+import { useNavigate } from "react-router-dom";
 
 function UserLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [userId, setUserId] = useState("");
   const [message, setMessage] = useState("");
-
+  const { user, loginUser, logoutUser } = useUserContext();
+  const navigate = useNavigate();
   async function handleLogin(event) {
     event.preventDefault();
 
@@ -29,9 +29,10 @@ function UserLogin() {
       );
 
       setMessage(response.data.message);
-      console.log(response);
     } catch (error) {
-      console.log(error);
+      navigate("/error", {
+        state: [error.message, error.response.status],
+      });
     }
   }
 

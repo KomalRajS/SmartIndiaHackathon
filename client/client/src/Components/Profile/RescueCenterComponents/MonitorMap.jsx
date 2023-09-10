@@ -207,58 +207,6 @@ function MonitorMap(props) {
         );
       });
 
-      map.current.addLayer({
-        id: "clusters",
-        type: "circle",
-        source: "earthquakes",
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": [
-            "step",
-            ["get", "point_count"],
-            "#BCF7C7",
-            50,
-            "#f1f075",
-            100,
-            "#f28cb1",
-          ],
-          "circle-radius": [
-            "step",
-            ["get", "point_count"],
-            20,
-            50,
-            30,
-            100,
-            40,
-          ],
-        },
-      });
-
-      map.current.addLayer({
-        id: "cluster-count",
-        type: "symbol",
-        source: "earthquakes",
-        filter: ["has", "point_count"],
-        layout: {
-          "text-field": ["get", "point_count_abbreviated"],
-          "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-          "text-size": 12,
-        },
-      });
-
-      map.current.addLayer({
-        id: "unclustered-point",
-        type: "circle",
-        source: "earthquakes",
-        filter: ["!", ["has", "point_count"]],
-        paint: {
-          "circle-color": "#BCF7C7",
-          "circle-radius": 10,
-          "circle-stroke-width": 3,
-          "circle-stroke-color": "#fff",
-        },
-      });
-
       map.current.on("mouseenter", "clusters", () => {
         map.current.getCanvas().style.cursor = "pointer";
       });
