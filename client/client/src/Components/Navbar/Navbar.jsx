@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
+import { Navbar, Nav, Container, Form } from "react-bootstrap";
+import { useUserContext } from "../Context";
+
 const NavBar = ({ searchbox }) => {
   const [logo, setlogo] = useState();
-
+  const { user } = useUserContext();
   const logoclick = () => {};
 
   return (
@@ -34,6 +32,7 @@ const NavBar = ({ searchbox }) => {
             </Nav.Link>
           </Nav>
           <Form className="d-flex justify-content-start">{searchbox}</Form>
+          {user && <div>{user.username}</div>}
         </Navbar.Collapse>
       </Container>
     </Navbar>

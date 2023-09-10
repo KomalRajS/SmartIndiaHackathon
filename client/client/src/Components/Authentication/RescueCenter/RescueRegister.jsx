@@ -3,6 +3,7 @@ import NavBar from "../../Navbar/Navbar";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import Container from "react-bootstrap/Container";
+import { useUserContext } from "../../Context";
 import Selector from "../../Utility/Selector";
 import { useNavigate } from "react-router-dom";
 
@@ -31,7 +32,8 @@ function RescueRegister() {
   const [services, setServices] = useState([]);
   const [capacity, setCapacity] = useState(0);
   const [location, setLocation] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState();
+  const { user, loginUser } = useUserContext();
 
   const navigate = useNavigate();
 
@@ -109,6 +111,8 @@ function RescueRegister() {
           calamities: calamities,
         }
       );
+      loginUser(response.data.user);
+      navigate("/home");
     } catch (error) {
       navigate("/error", {
         state: [error.message, error.response.status],

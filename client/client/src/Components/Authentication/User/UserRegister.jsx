@@ -3,6 +3,7 @@ import NavBar from "../../Navbar/Navbar";
 import axios from "axios";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../../Context";
 
 const formStyle = {
   maxWidth: "400px", // Adjust the maximum width as needed
@@ -24,6 +25,8 @@ function UserRegister() {
   const [location, setLocation] = useState();
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user, loginUser } = useUserContext();
+
   const handlesignup = (event) => {};
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -89,7 +92,8 @@ function UserRegister() {
           },
         }
       );
-      console.log(response);
+      loginUser(response.data.user);
+      navigate("/home");
     } catch (error) {
       navigate("/error", {
         state: [error.message, error.response.status],

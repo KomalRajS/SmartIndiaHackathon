@@ -14,7 +14,7 @@ function UserLogin() {
   const [password, setPassword] = useState("");
   const [userId, setUserId] = useState("");
   const [message, setMessage] = useState("");
-  const { user, loginUser, logoutUser } = useUserContext();
+  const { user, loginUser } = useUserContext();
   const navigate = useNavigate();
   async function handleLogin(event) {
     event.preventDefault();
@@ -31,8 +31,10 @@ function UserLogin() {
           password: password,
         }
       );
-
+      console.log(response);
+      loginUser(response.data.user);
       setMessage(response.data.message);
+      navigate("/home");
     } catch (error) {
       navigate("/error", {
         state: [error.message, error.response.status],
