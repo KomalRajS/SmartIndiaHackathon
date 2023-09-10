@@ -16,6 +16,7 @@ import RescueRegister from "./Components/Authentication/RescueCenter/RescueRegis
 import UserLogin from "./Components/Authentication/User/UserLogin";
 import UserRegister from "./Components/Authentication/User/UserRegister";
 import RescueCenterDashboard from "./Components/Profile/RescueCenterDashboard";
+import Chat from "./Components/Chat";
 
 export default function App() {
   const optionsSet1 = ["Option A", "Option B", "Option C"];
@@ -42,6 +43,7 @@ export default function App() {
           element={<RescueRegister options={optionsSet1} />}
         />
         <Route path="/" element={<RescueRegister />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </Router>
   );

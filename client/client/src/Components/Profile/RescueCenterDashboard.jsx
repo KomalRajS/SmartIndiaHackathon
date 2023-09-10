@@ -24,9 +24,6 @@ export default function RescueCenterDashboard() {
 
   return (
     <>
-      <div>
-        <NavBar />
-      </div>
       <MonitorMap url="requests" id={id}></MonitorMap>
     </>
   );

@@ -2,11 +2,12 @@ import React from "react";
 import { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import "mapbox-gl/dist/mapbox-gl.css";
-
+import { SearchBox } from "@mapbox/search-js-react";
 import Card from "react-bootstrap/Card";
 import axios from "axios";
 import MapboxGeocoder from "mapbox-gl-geocoder";
 import RainLayer from "mapbox-gl-rain-layer";
+import NavBar from "../../Navbar/Navbar";
 
 function MonitorMap(props) {
   mapboxgl.accessToken =
@@ -101,9 +102,6 @@ function MonitorMap(props) {
             type: "FeatureCollection",
             features: geoJsonFeatures,
           },
-          cluster: true,
-          clusterMaxZoom: 14,
-          clusterRadius: 150,
         });
 
         map.current.addLayer(
@@ -449,6 +447,29 @@ function MonitorMap(props) {
 
   return (
     <>
+      <div>
+        <NavBar
+          searchbox={
+            <SearchBox
+              accessToken={mapboxgl.accessToken}
+              marker={true}
+              map={map.current}
+              placeholder="search places"
+              value=""
+              mapboxgl={mapboxgl}
+              popoverOptions={{
+                placement: "top-start",
+                flip: true,
+                offset: 5,
+              }}
+              options={{
+                language: "en",
+                country: "IN",
+              }}
+            />
+          }
+        />
+      </div>
       <div>
         <Card
           body
