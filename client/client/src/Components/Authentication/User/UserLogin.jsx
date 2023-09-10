@@ -4,6 +4,10 @@ import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useUserContext } from "../../Context";
 import { useNavigate } from "react-router-dom";
+const formStyle = {
+  maxWidth: "400px", // Adjust the maximum width as needed
+  width: "100%",
+};
 
 function UserLogin() {
   const [username, setUsername] = useState("");
