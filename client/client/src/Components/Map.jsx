@@ -182,7 +182,7 @@ function Map(props) {
         });
 
         map.current.on("click", "unclustered-point", (e) => {
-          const text = e.features[0].properties.id;
+          const id = e.features[0].properties.id;
           const coordinates = e.features[0].geometry.coordinates;
 
           while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
@@ -191,7 +191,7 @@ function Map(props) {
 
           new mapboxgl.Popup()
             .setLngLat(coordinates)
-            .setHTML(text)
+            .setHTML(`<a href="/rescue/dashboard/${id}">view</a>`)
             .addTo(map.current);
         });
 
@@ -385,38 +385,37 @@ function Map(props) {
 
   return (
     <>
-      <div>
-        <NavBar
-          searchbox={
-            <SearchBox
-              accessToken={mapboxgl.accessToken}
-              marker={true}
-              map={map.current}
-              placeholder="search places"
-              value=""
-              mapboxgl={mapboxgl}
-              popoverOptions={{
-                placement: "top-start",
-                flip: true,
-                offset: 5,
-              }}
-              options={{
-                language: "en",
-                country: "IN",
-              }}
-            />
-          }
-        />
-      </div>
+      <NavBar
+        searchbox={
+          <SearchBox
+            accessToken={mapboxgl.accessToken}
+            marker={true}
+            map={map.current}
+            placeholder="search places"
+            value=""
+            mapboxgl={mapboxgl}
+            popoverOptions={{
+              placement: "top-start",
+              flip: true,
+              offset: 5,
+            }}
+            options={{
+              language: "en",
+              country: "IN",
+            }}
+          />
+        }
+      ></NavBar>
+
       <Card className="instructions d-none" id="instructions"></Card>
 
       <div className="chat-button">
         {showChat && (
           <iframe
             width="350"
-            height="430"
+            height="630"
             allow="microphone;"
-            className="chat-window"
+            className="chatbot-window"
             src="https://console.dialogflow.com/api-client/demo/embedded/7130a9d5-5926-40a1-ab4c-732d73178eab"
           ></iframe>
         )}

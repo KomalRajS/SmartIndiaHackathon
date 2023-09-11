@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import MonitorMap from "./RescueCenterComponents/MonitorMap";
 import NavBar from "../Navbar/Navbar";
+import RescueCenter from "./RescueCenter";
 export default function RescueCenterDashboard() {
   const [data, setData] = useState({});
   const { id } = useParams();
@@ -24,7 +25,8 @@ export default function RescueCenterDashboard() {
 
   return (
     <>
-      <MonitorMap url="requests" id={id}></MonitorMap>
+      <NavBar></NavBar>
+      <RescueCenter></RescueCenter>
     </>
   );
 }

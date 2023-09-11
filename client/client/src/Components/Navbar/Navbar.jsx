@@ -16,7 +16,7 @@ const NavBar = ({ searchbox }) => {
       data-bs-theme="dark"
     >
       <Container fluid>
-        <Navbar.Brand href="#">💡 Samrt India Hackathon</Navbar.Brand>
+        <Navbar.Brand href="#">💡 Smart India Hackathon</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
           <Nav
@@ -32,7 +32,7 @@ const NavBar = ({ searchbox }) => {
             </Nav.Link>
           </Nav>
           <Form className="d-flex justify-content-start">{searchbox}</Form>
-          {user && <div>{user.username}</div>}
+          {user && <div className="text-white">{user.username}</div>}
         </Navbar.Collapse>
       </Container>
     </Navbar>

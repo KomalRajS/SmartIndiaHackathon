@@ -70,11 +70,11 @@ function Chat() {
     <main className="content">
       <div className="container mt-3">
         {user.userId && (
-          <div className="card w-100 border-2 border-info">
+          <div className="card w-100 ">
             <div className="row vh-95">
               <div className="d-flex flex-column col-12 col-lg-12 col-xl-12 chat-window">
                 {/*chat header*/}
-                <div className="align-items-start py-2 px-4 w-100 border-bottom border-info d-lg-block sticky-top bg-white">
+                <div className="align-items-start py-2 px-4 w-100  d-lg-block sticky-top bg-white">
                   <div className="d-flex align-items-center py-1">
                     <div className="position-relative">
                       <img
@@ -99,7 +99,7 @@ function Chat() {
                       {messages.map((message, index) => {
                         return message.type === "userStatus" ? (
                           <div key={index} className="text-center">
-                            <span className="badge bg-info">
+                            <span className="badge bg-secondary">
                               {message.userId === user.userId
                                 ? "You have joined"
                                 : `${message.username} has joined`}
@@ -143,7 +143,7 @@ function Chat() {
                 {/*chat body*/}
 
                 {/*input message*/}
-                <div className="align-items-end border-info py-3 px-4 border-top d-lg-block mt-auto chat-input">
+                <div className="align-items-end  py-3 px-4  d-lg-block mt-auto chat-input">
                   <div className="input-group flex-fill ">
                     <input
                       type="text"
@@ -159,7 +159,7 @@ function Chat() {
                       }
                     />
                     <button
-                      className="btn btn-info"
+                      className="btn btn-secondary"
                       onClick={() => sendMessage()}
                     >
                       Send
@@ -192,7 +192,7 @@ function Chat() {
                     }
                   />
                   <button
-                    className="btn btn-success"
+                    className="btn btn-secondary"
                     onClick={() => logNewUser()}
                   >
                     Join

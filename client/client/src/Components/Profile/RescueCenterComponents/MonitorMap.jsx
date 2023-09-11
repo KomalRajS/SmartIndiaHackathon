@@ -3,7 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SearchBox } from "@mapbox/search-js-react";
-import Card from "react-bootstrap/Card";
+import { Card, Col } from "react-bootstrap";
 import axios from "axios";
 import MapboxGeocoder from "mapbox-gl-geocoder";
 import RainLayer from "mapbox-gl-rain-layer";
@@ -395,30 +395,7 @@ function MonitorMap(props) {
 
   return (
     <>
-      <div>
-        <NavBar
-          searchbox={
-            <SearchBox
-              accessToken={mapboxgl.accessToken}
-              marker={true}
-              map={map.current}
-              placeholder="search places"
-              value=""
-              mapboxgl={mapboxgl}
-              popoverOptions={{
-                placement: "top-start",
-                flip: true,
-                offset: 5,
-              }}
-              options={{
-                language: "en",
-                country: "IN",
-              }}
-            />
-          }
-        />
-      </div>
-      <div>
+      <div className="map-container-parent" style={{ width: "200px" }}>
         <Card
           body
           id="instructions"
@@ -428,7 +405,8 @@ function MonitorMap(props) {
               : "bg-dark text-white d-none"
           }
         ></Card>
-        <div ref={mapContainer} className="map-container" />
+
+        <Col ref={mapContainer} className="map-container" sm={7}></Col>
       </div>
     </>
   );
