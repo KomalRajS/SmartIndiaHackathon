@@ -3,12 +3,9 @@ import NavBar from "../../Navbar/Navbar";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import Container from "react-bootstrap/Container";
+import { useUserContext } from "../../Context";
 import Selector from "../../Utility/Selector";
-
-const formStyle = {
-  maxWidth: "400px", // Adjust the maximum width as needed
-  width: "100%",
-};
+import { useNavigate } from "react-router-dom";
 
 function RescueRegister() {
   const [message, setMessage] = useState("");
@@ -35,7 +32,10 @@ function RescueRegister() {
   const [services, setServices] = useState([]);
   const [capacity, setCapacity] = useState(0);
   const [location, setLocation] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState();
+  const { user, loginUser } = useUserContext();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -67,7 +67,9 @@ function RescueRegister() {
       setMessage(response.data.message);
       setdisablecheck(false);
     } catch (error) {
-      console.log(error);
+      navigate("/error", {
+        state: [error.message, error.response.status],
+      });
     }
   }
   async function signup(event) {
@@ -109,9 +111,12 @@ function RescueRegister() {
           calamities: calamities,
         }
       );
-      console.log(response);
+      loginUser(response.data.user);
+      navigate("/home");
     } catch (error) {
-      console.log(error);
+      navigate("/error", {
+        state: [error.message, error.response.status],
+      });
     }
   }
 

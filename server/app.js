@@ -74,6 +74,7 @@ app.use(passport.session());
 app.use(flash());
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
+  console.log(req.user);
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -92,6 +93,8 @@ app.use("/rescue", allRequestsData);
 
 const rescueCenterDashboard = require("./router/RescueCenterRoutes/dashboard");
 app.use("/rescue", rescueCenterDashboard);
+
+// ------------------------scoket-------------------------------//
 
 const http = require("http"); // You'll need the http module for Socket.IO
 const { Server } = require("socket.io");

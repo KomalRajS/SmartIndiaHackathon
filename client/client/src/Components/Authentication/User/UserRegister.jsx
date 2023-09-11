@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import NavBar from "../../Navbar/Navbar";
 import axios from "axios";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../../Context";
 
 const formStyle = {
   maxWidth: "400px", // Adjust the maximum width as needed
@@ -22,6 +24,9 @@ function UserRegister() {
   const [sendOrResend, setSendOrResend] = useState("send");
   const [location, setLocation] = useState();
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { user, loginUser } = useUserContext();
+
   const handlesignup = (event) => {};
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -52,7 +57,9 @@ function UserRegister() {
       setMessage(response.data.message);
       setdisablecheck(false);
     } catch (error) {
-      console.log(error);
+      navigate("/error", {
+        state: [error.message, error.response.status],
+      });
     }
   }
   async function signup(event) {
@@ -85,9 +92,12 @@ function UserRegister() {
           },
         }
       );
-      console.log(response);
+      loginUser(response.data.user);
+      navigate("/home");
     } catch (error) {
-      console.log(error);
+      navigate("/error", {
+        state: [error.message, error.response.status],
+      });
     }
   }
 

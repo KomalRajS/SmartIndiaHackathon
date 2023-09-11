@@ -16,6 +16,9 @@ import RescueRegister from "./Components/Authentication/RescueCenter/RescueRegis
 import UserLogin from "./Components/Authentication/User/UserLogin";
 import UserRegister from "./Components/Authentication/User/UserRegister";
 import RescueCenterDashboard from "./Components/Profile/RescueCenterDashboard";
+import RequestCenterRequestBoard from "./Components/Profile/RescueCenterReqBoard";
+
+import Error from "./Components/Error";
 import Chat from "./Components/Chat";
 
 export default function App() {
@@ -32,6 +35,10 @@ export default function App() {
           path="/rescue/dashboard/:id"
           element={<RescueCenterDashboard />}
         />
+        <Route
+          path="/rescue/requestboard/:id"
+          element={<RequestCenterRequestBoard />}
+        />
         // auth routes
         <Route path="/auth/login" element={<SignIn />} />
         <Route path="/auth/register" element={<SignUp />} />
@@ -43,7 +50,8 @@ export default function App() {
           element={<RescueRegister options={optionsSet1} />}
         />
         <Route path="/" element={<RescueRegister />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat/:roomId" element={<Chat />} />
+        <Route path="/error" element={<Error />}></Route>
       </Routes>
     </Router>
   );

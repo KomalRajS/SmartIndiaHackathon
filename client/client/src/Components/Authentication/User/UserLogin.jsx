@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import NavBar from "../../Navbar/Navbar";
 import { Container, Form, Button, Row, Col } from "react-bootstrap";
 import axios from "axios";
+import { useUserContext } from "../../Context";
+import { useNavigate } from "react-router-dom";
 const formStyle = {
   maxWidth: "400px", // Adjust the maximum width as needed
   width: "100%",
@@ -10,8 +12,10 @@ const formStyle = {
 function UserLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [userId, setUserId] = useState("");
   const [message, setMessage] = useState("");
-
+  const { user, loginUser } = useUserContext();
+  const navigate = useNavigate();
   async function handleLogin(event) {
     event.preventDefault();
 
@@ -27,11 +31,14 @@ function UserLogin() {
           password: password,
         }
       );
-
-      setMessage(response.data.message);
       console.log(response);
+      loginUser(response.data.user);
+      setMessage(response.data.message);
+      navigate("/home");
     } catch (error) {
-      console.log(error);
+      navigate("/error", {
+        state: [error.message, error.response.status],
+      });
     }
   }
 

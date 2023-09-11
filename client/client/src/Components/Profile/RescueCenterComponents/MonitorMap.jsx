@@ -3,7 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SearchBox } from "@mapbox/search-js-react";
-import Card from "react-bootstrap/Card";
+import { Card, Col } from "react-bootstrap";
 import axios from "axios";
 import MapboxGeocoder from "mapbox-gl-geocoder";
 import RainLayer from "mapbox-gl-rain-layer";
@@ -207,58 +207,6 @@ function MonitorMap(props) {
         );
       });
 
-      map.current.addLayer({
-        id: "clusters",
-        type: "circle",
-        source: "earthquakes",
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": [
-            "step",
-            ["get", "point_count"],
-            "#BCF7C7",
-            50,
-            "#f1f075",
-            100,
-            "#f28cb1",
-          ],
-          "circle-radius": [
-            "step",
-            ["get", "point_count"],
-            20,
-            50,
-            30,
-            100,
-            40,
-          ],
-        },
-      });
-
-      map.current.addLayer({
-        id: "cluster-count",
-        type: "symbol",
-        source: "earthquakes",
-        filter: ["has", "point_count"],
-        layout: {
-          "text-field": ["get", "point_count_abbreviated"],
-          "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-          "text-size": 12,
-        },
-      });
-
-      map.current.addLayer({
-        id: "unclustered-point",
-        type: "circle",
-        source: "earthquakes",
-        filter: ["!", ["has", "point_count"]],
-        paint: {
-          "circle-color": "#BCF7C7",
-          "circle-radius": 10,
-          "circle-stroke-width": 3,
-          "circle-stroke-color": "#fff",
-        },
-      });
-
       map.current.on("mouseenter", "clusters", () => {
         map.current.getCanvas().style.cursor = "pointer";
       });
@@ -447,30 +395,7 @@ function MonitorMap(props) {
 
   return (
     <>
-      <div>
-        <NavBar
-          searchbox={
-            <SearchBox
-              accessToken={mapboxgl.accessToken}
-              marker={true}
-              map={map.current}
-              placeholder="search places"
-              value=""
-              mapboxgl={mapboxgl}
-              popoverOptions={{
-                placement: "top-start",
-                flip: true,
-                offset: 5,
-              }}
-              options={{
-                language: "en",
-                country: "IN",
-              }}
-            />
-          }
-        />
-      </div>
-      <div>
+      <div className="map-container-parent" style={{ width: "200px" }}>
         <Card
           body
           id="instructions"
@@ -480,7 +405,8 @@ function MonitorMap(props) {
               : "bg-dark text-white d-none"
           }
         ></Card>
-        <div ref={mapContainer} className="map-container" />
+
+        <Col ref={mapContainer} className="map-container" sm={7}></Col>
       </div>
     </>
   );
