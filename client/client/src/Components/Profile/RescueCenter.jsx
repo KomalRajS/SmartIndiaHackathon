@@ -23,14 +23,11 @@ export default function RescueCenter() {
           `http://localhost:4000/rescue/dashboard/req/${id}`
         );
         setData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      } catch (error) {}
     }
 
     fetchData();
   }, [id]);
-  console.log(data);
   return (
     <>
       <Row className="p-2 " style={{ margin: "0px" }}>
@@ -169,7 +166,7 @@ export default function RescueCenter() {
         <Col sm={5} className="my-2">
           <Card style={{ height: "34rem" }} className="shadow">
             <Card.Body>
-              <Chat></Chat>
+              <Chat id={id}> </Chat>
             </Card.Body>
           </Card>
         </Col>

@@ -7,7 +7,7 @@ import { Card, Col } from "react-bootstrap";
 import axios from "axios";
 import MapboxGeocoder from "mapbox-gl-geocoder";
 import RainLayer from "mapbox-gl-rain-layer";
-import NavBar from "../../Navbar/Navbar";
+import { useParams } from "react-router-dom";
 
 function MonitorMap(props) {
   mapboxgl.accessToken =
@@ -244,7 +244,7 @@ function MonitorMap(props) {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/rescue/${props.url}/${props.id}`
+          `http://localhost:4000/rescue/requests/${props.id}`
         );
         const { data } = response;
         setLocations(data);
@@ -413,3 +413,21 @@ function MonitorMap(props) {
 }
 
 export default MonitorMap;
+
+//<SearchBox
+//          accessToken={mapboxgl.accessToken}
+//          marker={true}
+//          map={map.current}
+//          placeholder="search places"
+//          value=""
+//          mapboxgl={mapboxgl}
+//          popoverOptions={{
+//            placement: "top-start",
+//            flip: true,
+//            offset: 5,
+//          }}
+//          options={{
+//            language: "en",
+//            country: "IN",
+//          }}
+//        />

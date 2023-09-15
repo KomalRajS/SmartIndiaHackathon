@@ -1,6 +1,6 @@
 // UserContext.js
 import React, { createContext, useContext, useState } from "react";
-
+import axios from "axios";
 const UserContext = createContext();
 
 export const useUserContext = () => {
@@ -10,7 +10,9 @@ export const useUserContext = () => {
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+
+    if (!storedUser) return null;
+    else return JSON.parse(storedUser);
   });
 
   const loginUser = (userData) => {
@@ -18,9 +20,11 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  const logoutUser = () => {
+  const logoutUser = async () => {
     setUser(null);
     localStorage.removeItem("user");
+
+    const res = await axios.get("/auth/user/logout");
   };
 
   return (

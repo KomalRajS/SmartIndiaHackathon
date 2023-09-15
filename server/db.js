@@ -16,43 +16,81 @@ db.once("open", () => {
 });
 
 const populator = async () => {
-  await Rescuer.deleteMany({});
-  let rescuer = new Rescuer({
-    email: "whatsup@gmail.com",
-    centername: "nothing",
-    location: {
-      type: "Point",
-      coordinates: [100.21, 24.34],
-    },
-    address: "bangalotre",
-    description: "oh my good",
-    capacity: 193,
-    services: ["counseling", "food and water"],
-    availability: ["almost full"],
-    specialization: ["fire response", "medical"],
+  for (let i = 0; i < 100; i++) {
+    let rescuer = new Rescuer({
+      email: "whatsup@gmail.com" + Math.random(),
+      username: "nothing" + Math.random(),
+      description: "oh my good",
+      address: "bangalotre",
 
-    medical_facility: [
-      "basic first aid",
-      "intensive care units",
-      "pediatric care",
-    ],
+      rest: {
+        geometry: {
+          type: "Point",
+          coordinates: getRandomCoordinatesIndia(),
+        },
+        capacity: 193,
+        services: ["counseling", "food and water"],
+        availability: ["almost full"],
+        specialization: ["fire response", "medical"],
 
-    supply_and_resource: [
-      "limited supplies",
-      "medical equipment available",
-      "pharmaceuticals available",
-      "well-stocked",
-    ],
+        medical_facility: [
+          "basic first aid",
+          "intensive care units",
+          "pediatric care",
+        ],
 
-    calamities: ["earthquake", "fire"],
+        supply_and_resource: [
+          "limited supplies",
+          "medical equipment available",
+          "pharmaceuticals available",
+          "well-stocked",
+        ],
 
-    contact: {
-      country_code: "+91",
-      phone_no: "90232365376",
-    },
-  });
+        calamities: ["earthquake", "fire"],
+      },
 
-  await rescuer.save();
+      contact: {
+        country_code: "+91",
+        phone_no: "90232365376" + Math.random(),
+      },
+    });
+
+    await rescuer.save();
+  }
 };
 
-populator();
+function getRandomCoordinatesIndia() {
+  // Define the latitude and longitude boundaries for India
+  const minLatitude = 11.6;
+  const maxLatitude = 17.6;
+  const minLongitude = 74.1;
+  const maxLongitude = 78.6;
+
+  // Generate random latitude and longitude coordinates
+  const randomLatitude =
+    Math.random() * (maxLatitude - minLatitude) + minLatitude;
+  const randomLongitude =
+    Math.random() * (maxLongitude - minLongitude) + minLongitude;
+
+  // Return the random coordinates as an object
+  return [randomLatitude, randomLongitude];
+}
+
+const Userpopulator = async () => {
+  await User.deleteMany({ rescue_team: "65004c2351045558fcac75f0" });
+  for (let i = 0; i < 5; i++) {
+    let user = new User({
+      email: "whatsup@gmail.com" + Math.random(),
+      username: "nothing" + Math.random(),
+      rescue_team: "65004c2351045558fcac75f0",
+      contact: {
+        country_code: "+91",
+        phone_no: "90232365376" + Math.random(),
+      },
+    });
+
+    await user.save();
+  }
+};
+
+Userpopulator();

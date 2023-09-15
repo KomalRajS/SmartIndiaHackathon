@@ -24,6 +24,7 @@ module.exports.register = async (req, res) => {
         return next(err);
       }
     });
+    console.log(req.user);
     res.send({ user: req.user, message: "Registered successfully" });
   } catch (e) {
     res.status(409).send({ message: e.message });

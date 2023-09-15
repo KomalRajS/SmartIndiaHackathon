@@ -3,48 +3,84 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import MonitorMap from "./RescueCenterComponents/MonitorMap";
 import NavBar from "../Navbar/Navbar";
-import { Row, Col, Card, Placeholder } from "react-bootstrap";
+import { Row, Col, Card, Placeholder, Alert, Form } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { useUserContext } from "../Context";
+import { v4 as uuidv4 } from "uuid";
+import { io } from "socket.io-client";
+const socket = io("http://localhost:4000");
 
 export default function RescueCenterRequestBaord() {
-  const [data, setData] = useState({});
-  const { id } = useParams();
-
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [req, setReq] = useState([]);
+  const { id: centerId } = useParams();
+  const navigate = useNavigate();
+  const [user, setUser] = useState({});
+  const { user: User } = useUserContext();
   useEffect(() => {
     async function fetchData() {
       try {
         const response = await axios.get(
-          `http://localhost:4000/rescue/dashboard/req/${id}`
+          `http://localhost:4000/rescue/requestboard/req/teammembers/${centerId}`
         );
-        setData(response.data);
+        setTeamMembers(response.data);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        navigate("/error", {
+          state: [error.message, error.response.status],
+        });
       }
     }
+    function socketConnect() {
+      const id = User._id;
+      const roomId = centerId + "req";
+      setUser({ username: User.username, roomId: roomId, userId: id });
+      socket.auth = { username: User.username, roomId: roomId, userId: id };
+      socket.connect();
+    }
+    socketConnect();
+
+    socket.on("ask rescuecenter", (user) => {
+      setReq([...req, user]);
+    });
 
     fetchData();
-  }, [id]);
+  }, []);
 
+  function asign(teamMember) {
+    console.log(teamMember);
+    socket.emit("asign", teamMember._id, teamMember);
+  }
   return (
     <>
       <NavBar></NavBar>
       <Row style={{ margin: "0px" }}>
         <Col sm="7">
-          <MonitorMap></MonitorMap>
+          <MonitorMap url="req" id={centerId}></MonitorMap>
         </Col>
         <Col sm="5">
-          <Card>
-            <Card.Body>
-              <Placeholder as={Card.Title} animation="glow">
-                <Placeholder xs={6} />
-              </Placeholder>
-              <Placeholder as={Card.Text} animation="glow">
-                <Placeholder xs={7} /> <Placeholder xs={4} />{" "}
-                <Placeholder xs={4} /> <Placeholder xs={6} />{" "}
-                <Placeholder xs={8} />
-              </Placeholder>
-              <Placeholder.Button variant="primary" xs={6} />
-            </Card.Body>
-          </Card>
+          <Row>
+            <Card>
+              <Card.Body>
+                <Alert variant="success">
+                  {req.map((e) => (
+                    <>
+                      <Alert.Heading>Hey, nice to see you</Alert.Heading>
+                      <p>{JSON.stringify(e.username)}</p>
+
+                      <Form.Select onChange={(e) => asign(e.target.value)}>
+                        {teamMembers &&
+                          teamMembers.map((e) => (
+                            <option value={e}>{e.username}</option>
+                          ))}
+                      </Form.Select>
+                    </>
+                  ))}
+
+                  <hr />
+                </Alert>
+              </Card.Body>
+            </Card>
+          </Row>
         </Col>
       </Row>
     </>

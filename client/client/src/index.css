@@ -9,6 +9,11 @@
   /* You can adjust the z-index as needed */
 }
 
+SearchBox {
+  position: absolute;
+  z-index: 2;
+}
+
 .chatbot-window {
   width: 300px;
   height: 420px;
@@ -58,7 +63,7 @@ iframe {
 }
 
 .vh-95 {
-  height: 80vh !important;
+  height: 70vh !important;
 }
 
 .chat-height {

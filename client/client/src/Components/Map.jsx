@@ -407,7 +407,15 @@ function Map(props) {
         }
       ></NavBar>
 
-      <Card className="instructions d-none" id="instructions"></Card>
+      <Card
+        body
+        id="instructions"
+        className={
+          instructionDisplay
+            ? "bg-dark text-white "
+            : "bg-dark text-white d-none"
+        }
+      ></Card>
 
       <div className="chat-button">
         {showChat && (

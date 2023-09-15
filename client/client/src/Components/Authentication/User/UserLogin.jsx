@@ -57,6 +57,7 @@ function UserLogin() {
               type="text"
               placeholder="Enter your name"
               value={username}
+              required
               onChange={(e) => setUsername(e.target.value)}
             />
           </Form.Group>
@@ -67,6 +68,7 @@ function UserLogin() {
               type="text"
               placeholder="Enter your password"
               value={password}
+              required
               onChange={(e) => setPassword(e.target.value)}
             />
           </Form.Group>

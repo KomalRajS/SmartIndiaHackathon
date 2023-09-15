@@ -92,6 +92,7 @@ function UserRegister() {
           },
         }
       );
+      console.log(response);
       loginUser(response.data.user);
       navigate("/home");
     } catch (error) {
@@ -116,6 +117,7 @@ function UserRegister() {
               type="text"
               placeholder=""
               value={username}
+              required
               onChange={(e) => setUsername(e.target.value)}
             />
           </Form.Group>
@@ -127,6 +129,7 @@ function UserRegister() {
                 type="email"
                 placeholder=" abc@gmail.com"
                 value={email}
+                required
                 onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Group>
@@ -137,6 +140,7 @@ function UserRegister() {
                 type="password"
                 placeholder="*****"
                 value={password}
+                required
                 onChange={(e) => setPassword(e.target.value)}
               />
             </Form.Group>
@@ -184,6 +188,7 @@ function UserRegister() {
             <Col>
               <Form.Group as={Col} controlId="formGridPassword">
                 <Form.Control
+                  required
                   type="text"
                   placeholder="phone no"
                   value={phoneNo}
