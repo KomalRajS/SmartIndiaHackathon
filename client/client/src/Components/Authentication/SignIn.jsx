@@ -22,7 +22,10 @@ function SignIn() {
               <Col>
                 <Link to="/auth/user/login">
                   <Card style={{ width: "10rem" }}>
-                    <Card.Img variant="top" src="holder.js/100px160" />
+                    <Card.Img
+                      variant="top"
+                      src="../../../../public/user-profile-icom.jpg"
+                    />
                     <Card.Body>
                       <Card.Title>User</Card.Title>
                     </Card.Body>

@@ -59,6 +59,7 @@ function RescueLogin() {
               type="text"
               placeholder="Enter your name"
               value={username}
+              required
               onChange={(event) => setUsername(event.target.value)}
             />
           </Form.Group>
@@ -69,6 +70,7 @@ function RescueLogin() {
               type="password"
               placeholder="Enter your password"
               value={password}
+              required
               onChange={(event) => setPassword(event.target.value)}
             />
           </Form.Group>

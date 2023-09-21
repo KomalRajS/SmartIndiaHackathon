@@ -86,6 +86,7 @@ function RescueRegister() {
     }
 
     try {
+      event.preventDefault();
       const response = await axios.post(
         "http://localhost:4000/auth/rescue/register",
         {
@@ -111,6 +112,7 @@ function RescueRegister() {
           calamities: calamities,
         }
       );
+      console.log(response.data.user);
       loginUser(response.data.user);
       navigate("/home");
     } catch (error) {
@@ -153,6 +155,7 @@ function RescueRegister() {
                     type="text"
                     placeholder="username"
                     value={username}
+                    required
                     onChange={(e) => setUsername(e.target.value)}
                   />
                 </Form.Group>
@@ -164,6 +167,7 @@ function RescueRegister() {
                       type="email"
                       placeholder=" abc@gmail.com"
                       value={email}
+                      required
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </Form.Group>
@@ -174,6 +178,7 @@ function RescueRegister() {
                       type="password"
                       placeholder="*****"
                       value={password}
+                      required
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </Form.Group>
@@ -186,6 +191,7 @@ function RescueRegister() {
                       type="textarea"
                       placeholder="address"
                       value={address}
+                      required
                       onChange={(e) => setAddress(e.target.value)}
                     />
                   </Form.Group>
@@ -199,6 +205,7 @@ function RescueRegister() {
                       type="textarea"
                       placeholder="small description "
                       value={description}
+                      required
                       onChange={(e) => setDescription(e.target.value)}
                     />
                   </Form.Group>
@@ -403,6 +410,7 @@ function RescueRegister() {
                     <Form.Group controlId="formGridPassword">
                       <Form.Label>Capacity</Form.Label>
                       <Form.Control
+                        required
                         type="number"
                         placeholder="address"
                         value={capacity}
@@ -488,6 +496,7 @@ function RescueRegister() {
                         type="text"
                         placeholder="phone no"
                         value={phoneNo}
+                        required
                         onChange={(e) => setPhoneNo(e.target.value)}
                       />
                     </Form.Group>
@@ -509,6 +518,7 @@ function RescueRegister() {
                       <Button
                         variant="secondary"
                         type="button"
+                        required
                         onClick={(e) => sendotp(e)}
                       >
                         {sendOrResend} OTP

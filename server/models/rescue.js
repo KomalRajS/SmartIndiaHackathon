@@ -117,5 +117,5 @@ const RescueSchema = new mongoose.Schema(
 );
 
 RescueSchema.plugin(passportLocalMongoose);
-RescueSchema.index({ location: "2dsphere" });
+RescueSchema.index({ "rest.geometry.coordinates": "2dsphere" });
 module.exports = mongoose.model("Rescuer", RescueSchema);

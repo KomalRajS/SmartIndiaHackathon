@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Navbar, Nav, Container, Form } from "react-bootstrap";
+import { Navbar, Nav, Container, Form, Button } from "react-bootstrap";
 import { useUserContext } from "../Context";
-
+import { useNavigate } from "react-router-dom";
 const NavBar = ({ searchbox }) => {
   const [logo, setlogo] = useState();
-  const { user } = useUserContext();
+  const { user, logoutUser } = useUserContext();
   const logoclick = () => {};
-
+  const navigate = useNavigate();
+  useEffect(() => {});
+  const logout = () => {
+    logoutUser();
+    navigate("/");
+  };
   return (
     <Navbar
       expand="lg"
@@ -30,9 +35,26 @@ const NavBar = ({ searchbox }) => {
             <Nav.Link href="#" disabled>
               Link
             </Nav.Link>
+
+            {user && (
+              <>
+                <div className="text-white align-self-center">
+                  {user.username}
+                </div>
+              </>
+            )}
           </Nav>
           <Form className="d-flex justify-content-start">{searchbox}</Form>
-          {user && <div className="text-white">{user.username}</div>}
+
+          {user && (
+            <Button
+              className="text-white"
+              variant="dark"
+              onClick={(e) => logoutUser()}
+            >
+              logout
+            </Button>
+          )}
         </Navbar.Collapse>
       </Container>
     </Navbar>

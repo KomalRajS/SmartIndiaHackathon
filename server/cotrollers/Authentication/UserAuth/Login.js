@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../../../models/user");
 
 module.exports.login = async (req, res) => {
+  req.session.location = req.body.location;
   res.send({ user: req.user, message: "Logged in successfully" });
 };
 

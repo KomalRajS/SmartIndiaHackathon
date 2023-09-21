@@ -157,7 +157,7 @@ function Map(props) {
           source: "earthquakes",
           filter: ["!", ["has", "point_count"]],
           paint: {
-            "circle-color": "#11b4da",
+            "circle-color": "#FF0000",
             "circle-radius": 4,
             "circle-stroke-width": 1,
             "circle-stroke-color": "#fff",
@@ -181,7 +181,7 @@ function Map(props) {
             });
         });
 
-        map.current.on("click", "unclustered-point", (e) => {
+        map.current.on("mouseenter", "unclustered-point", (e) => {
           const id = e.features[0].properties.id;
           const coordinates = e.features[0].geometry.coordinates;
 
@@ -208,6 +208,7 @@ function Map(props) {
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/nagaraj-poojari/clmbjvzva017201qu57augk40",
+      sprite: "mapbox://sprites/mapbox/bright-v8",
       center: [80.1128, 23.6345],
       zoom: zoom,
     });
@@ -225,6 +226,10 @@ function Map(props) {
     geolocate.on("geolocate", (event) => {
       const { latitude, longitude } = event.coords;
       setLocation([longitude, latitude]);
+      console.log(longitude, latitude);
+      navigator.geolocation.getCurrentPosition((loc) => {
+        console.log("here", loc.coords.longitude, loc.coords.latitude);
+      });
     });
   }, [map.current, locations]);
 
@@ -407,7 +412,15 @@ function Map(props) {
         }
       ></NavBar>
 
-      <Card className="instructions d-none" id="instructions"></Card>
+      <Card
+        body
+        id="instructions"
+        className={
+          instructionDisplay
+            ? "bg-dark text-white "
+            : "bg-dark text-white d-none"
+        }
+      ></Card>
 
       <div className="chat-button">
         {showChat && (

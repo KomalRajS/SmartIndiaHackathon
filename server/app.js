@@ -74,11 +74,14 @@ app.use(passport.session());
 app.use(flash());
 app.use((req, res, next) => {
   res.locals.currentUser = req.user;
-  console.log(req.user);
+
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
+
+const chatHandlerRoute = require("./router/ChatHandler");
+app.use("/chatHandler", chatHandlerRoute);
 
 //routes
 const userAuthRoutes = require("./router/AuthenticationRoutes/user");
@@ -93,6 +96,9 @@ app.use("/rescue", allRequestsData);
 
 const rescueCenterDashboard = require("./router/RescueCenterRoutes/dashboard");
 app.use("/rescue", rescueCenterDashboard);
+
+const requestBoardRoutes = require("./router/RescueCenterRoutes/RequestBoard");
+app.use("/rescue", requestBoardRoutes);
 
 // ------------------------scoket-------------------------------//
 
@@ -115,47 +121,69 @@ const io = new Server(server, {
 app.get("/socket.io/socket.io.js", (req, res) => {
   res.sendFile(__dirname + "/node_modules/socket.io-client/dist/socket.io.js");
 });
+all_users = {};
 
 io.use((socket, next) => {
   const username = socket.handshake.auth.username;
   if (!username) {
     return next(new Error("Invalid username"));
   }
-
+  socket.roomId = socket.handshake.auth.roomId;
+  socket.userId = socket.handshake.auth.userId;
+  if (!all_users[socket.roomId]) all_users[socket.roomId] = [];
   socket.username = username;
-  socket.userId = uuidv4();
+  socket.location = socket.handshake.auth.location;
+  all_users[socket.roomId].push({
+    userId: socket.userId,
+    username: socket.username,
+    location: socket.location,
+  });
+  socket.join(socket.roomId);
   next();
 });
 
 io.on("connection", async (socket) => {
   //all connected users
-  const users = [];
-  for (let [id, socket] of io.of("/").sockets) {
-    users.push({
-      userId: socket.userId,
-      username: socket.username,
-    });
-  }
 
+  const users = all_users[socket.roomId];
   //all users event
-  socket.emit("users", users);
+  io.to(socket.roomId).emit("users", users);
 
   //connected user details
-  socket.emit("session", { userId: socket.userId, username: socket.username });
 
   //new user events
-  socket.broadcast.emit("user connected", {
+  socket.broadcast.to(socket.roomId).emit("user connected", {
     userId: socket.userId,
     username: socket.username,
   });
 
   //new message event
   socket.on("new message", (message) => {
-    socket.broadcast.emit("new message", {
+    socket.broadcast.to(socket.roomId).emit("new message", {
       userId: socket.userId,
       username: socket.username,
       message,
     });
+  });
+
+  socket.on("ask request", (user) => {
+    socket.roomId = socket.handshake.auth.roomId;
+    socket.to(socket.handshake.auth.roomId).emit("ask rescuecenter", user);
+  });
+
+  socket.on("asign", (teamMemberId) => {
+    const roomId = socket.roomId + teamMemberId;
+    const room = io.sockets.adapter.rooms.get(socket.roomId);
+    io.emit("make new connection", roomId);
+
+    if (room) {
+      room.forEach((socketId) => {
+        const socket = io.sockets.sockets.get(socketId);
+        if (socket) {
+          socket.disconnect(true); // Disconnect the socket
+        }
+      });
+    }
   });
 });
 

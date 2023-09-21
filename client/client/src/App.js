@@ -20,6 +20,9 @@ import RequestCenterRequestBoard from "./Components/Profile/RescueCenterReqBoard
 
 import Error from "./Components/Error";
 import Chat from "./Components/Chat";
+import TeamMemberBoard from "./Components/Profile/TeamMemberBoard";
+
+import NavBar from "./Components/Navbar/Navbar";
 
 export default function App() {
   const optionsSet1 = ["Option A", "Option B", "Option C"];
@@ -39,6 +42,10 @@ export default function App() {
           path="/rescue/requestboard/:id"
           element={<RequestCenterRequestBoard />}
         />
+        <Route
+          path="/rescue/requestboard/:id/:memberId"
+          element={<TeamMemberBoard />}
+        />
         // auth routes
         <Route path="/auth/login" element={<SignIn />} />
         <Route path="/auth/register" element={<SignUp />} />
@@ -49,7 +56,7 @@ export default function App() {
           path="/auth/rescue/register"
           element={<RescueRegister options={optionsSet1} />}
         />
-        <Route path="/" element={<RescueRegister />} />
+        <Route path="/" element={<NavBar />} />
         <Route path="/chat/:roomId" element={<Chat />} />
         <Route path="/error" element={<Error />}></Route>
       </Routes>

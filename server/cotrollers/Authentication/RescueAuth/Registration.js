@@ -27,10 +27,10 @@ module.exports.register = async (req, res) => {
       if (err) {
         return next(err);
       }
-      res.send({ user: req.user, message: "Registered successfully" });
     });
+    res.send({ user: req.user, message: "Registered successfully" });
   } catch (e) {
-    console.log(e.message);
+    console.log(e);
     res.status(409).send({ message: e.message });
   }
 };

@@ -3,11 +3,11 @@ import { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SearchBox } from "@mapbox/search-js-react";
-import { Card, Col } from "react-bootstrap";
+import { Card, Col, Button } from "react-bootstrap";
 import axios from "axios";
 import MapboxGeocoder from "mapbox-gl-geocoder";
 import RainLayer from "mapbox-gl-rain-layer";
-import NavBar from "../../Navbar/Navbar";
+import { useParams } from "react-router-dom";
 
 function MonitorMap(props) {
   mapboxgl.accessToken =
@@ -19,6 +19,7 @@ function MonitorMap(props) {
   const [zoom, setZoom] = useState(9);
   const [instructionDisplay, setInstructionDisplay] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [transportMode, setTransportMode] = useState("driving");
 
   useEffect(() => {
     if (map && locations.length > 0) {
@@ -244,7 +245,7 @@ function MonitorMap(props) {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/rescue/${props.url}/${props.id}`
+          `http://localhost:4000/rescue/requests/${props.id}`
         );
         const { data } = response;
         setLocations(data);
@@ -264,7 +265,7 @@ function MonitorMap(props) {
       });
       async function getRoute(end) {
         const query = await fetch(
-          `https://api.mapbox.com/directions/v5/mapbox/cycling/${location[0]},${location[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
+          `https://api.mapbox.com/directions/v5/mapbox/${transportMode}/${location[0]},${location[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
           { method: "GET" }
         );
         const json = await query.json();
@@ -302,14 +303,14 @@ function MonitorMap(props) {
         }
         const instructions = document.getElementById("instructions");
         const steps = data.legs[0].steps;
-
+        console.log(data);
         let tripInstructions = "";
         for (const step of steps) {
           tripInstructions += `<li>${step.maneuver.instruction}</li>`;
         }
         instructions.innerHTML = `<p><strong>Trip duration: ${Math.floor(
           data.duration / 60
-        )} min 🚴 </strong></p><ol>${tripInstructions}</ol>`;
+        )} min 🚴 </strong> </p><ol>${tripInstructions}</ol>`;
       }
 
       map.current.on("load", () => {
@@ -401,10 +402,33 @@ function MonitorMap(props) {
           id="instructions"
           className={
             instructionDisplay
-              ? "bg-dark text-white "
+              ? "bg-dark text-white mt-5"
               : "bg-dark text-white d-none"
           }
         ></Card>
+        <div
+          className="m-2 d-flex d-row"
+          style={{ position: "absolute", zIndex: "1234567" }}
+        >
+          <SearchBox
+            className="searchbox-monitormap"
+            accessToken={mapboxgl.accessToken}
+            marker={true}
+            map={map.current}
+            placeholder="search places"
+            value=""
+            mapboxgl={mapboxgl}
+            popoverOptions={{
+              placement: "top-start",
+              flip: true,
+              offset: 5,
+            }}
+            options={{
+              language: "en",
+              country: "IN",
+            }}
+          />
+        </div>
 
         <Col ref={mapContainer} className="map-container" sm={7}></Col>
       </div>
