@@ -86,6 +86,7 @@ function RescueRegister() {
     }
 
     try {
+      event.preventDefault();
       const response = await axios.post(
         "http://localhost:4000/auth/rescue/register",
         {
@@ -111,6 +112,7 @@ function RescueRegister() {
           calamities: calamities,
         }
       );
+      console.log(response.data.user);
       loginUser(response.data.user);
       navigate("/home");
     } catch (error) {

@@ -16,6 +16,22 @@ function UserLogin() {
   const [message, setMessage] = useState("");
   const { user, loginUser } = useUserContext();
   const navigate = useNavigate();
+  const [location, setLocation] = useState([0, 0]);
+
+  useState(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude, longitude });
+        },
+        (err) => {
+          //setError(err.message);
+        }
+      );
+    }
+  });
+
   async function handleLogin(event) {
     event.preventDefault();
 
@@ -29,6 +45,7 @@ function UserLogin() {
         {
           username: username,
           password: password,
+          location: location,
         }
       );
       console.log(response);

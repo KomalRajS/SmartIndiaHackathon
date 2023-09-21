@@ -5,6 +5,7 @@ const dbUrl = process.env.MONGODB_URL;
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const Rescuer = require("./models/rescue");
+const Request = require("./models/request");
 
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
@@ -90,6 +91,23 @@ const Userpopulator = async () => {
     });
 
     await user.save();
+  }
+};
+
+const reqPopulator = async () => {
+  await Request.deleteMany({});
+  for (let i = 0; i < 5; i++) {
+    let req = new Request({
+      email: "whatsup@gmail.com" + Math.random(),
+      username: "nothing" + Math.random(),
+      rescue_team: "65004c2351045558fcac75f0",
+      contact: {
+        country_code: "+91",
+        phone_no: "90232365376" + Math.random(),
+      },
+    });
+
+    await req.save();
   }
 };
 

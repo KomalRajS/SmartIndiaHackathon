@@ -30,6 +30,7 @@ module.exports.register = async (req, res) => {
     });
     res.send({ user: req.user, message: "Registered successfully" });
   } catch (e) {
+    console.log(e);
     res.status(409).send({ message: e.message });
   }
 };

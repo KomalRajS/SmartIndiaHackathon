@@ -80,6 +80,9 @@ app.use((req, res, next) => {
   next();
 });
 
+const chatHandlerRoute = require("./router/ChatHandler");
+app.use("/chatHandler", chatHandlerRoute);
+
 //routes
 const userAuthRoutes = require("./router/AuthenticationRoutes/user");
 const rescuerAuthRoutes = require("./router/AuthenticationRoutes/rescuer");
@@ -129,10 +132,11 @@ io.use((socket, next) => {
   socket.userId = socket.handshake.auth.userId;
   if (!all_users[socket.roomId]) all_users[socket.roomId] = [];
   socket.username = username;
-
+  socket.location = socket.handshake.auth.location;
   all_users[socket.roomId].push({
     userId: socket.userId,
     username: socket.username,
+    location: socket.location,
   });
   socket.join(socket.roomId);
   next();
@@ -167,16 +171,11 @@ io.on("connection", async (socket) => {
     socket.to(socket.handshake.auth.roomId).emit("ask rescuecenter", user);
   });
 
-  socket.on("asign", (teamMemberId, teamMember) => {
+  socket.on("asign", (teamMemberId) => {
     const roomId = socket.roomId + teamMemberId;
     const room = io.sockets.adapter.rooms.get(socket.roomId);
-
     io.emit("make new connection", roomId);
-    io.emit("new message", {
-      userId: teamMemberId,
-      username: teamMember.username,
-      message: teamMember.username,
-    });
+
     if (room) {
       room.forEach((socketId) => {
         const socket = io.sockets.sockets.get(socketId);

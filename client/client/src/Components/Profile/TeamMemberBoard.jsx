@@ -13,6 +13,12 @@ export default function TeamMemberBoard() {
   const navigate = useNavigate();
   const { user: User } = useUserContext();
   const [handlingReq, setHandlingReq] = useState(false);
+  const [allReqLoc, setAllReqLoc] = useState([]);
+
+  const updateAllReqLoc = (data) => {
+    console.log("hey", data);
+    setAllReqLoc([...allReqLoc, data]);
+  };
 
   useEffect(() => {
     console.log(id);
@@ -37,12 +43,15 @@ export default function TeamMemberBoard() {
       <NavBar></NavBar>
       <Row style={{ margin: "0px" }}>
         <Col sm="7">
-          <MonitorMap url="req" id={id}></MonitorMap>
+          <MonitorMap url="req" id={id} allReqMarkers={allReqLoc}></MonitorMap>
         </Col>
         <Col sm="5">
           <Row>
             <Card>
-              <Chat reqUserId={id + "req" + User._id}></Chat>
+              <Chat
+                reqUserId={id + "req" + User._id}
+                updateAllReqLocFun={updateAllReqLoc}
+              ></Chat>
             </Card>
           </Row>
         </Col>

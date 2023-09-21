@@ -12,21 +12,30 @@ module.exports.register = async (req, res) => {
     } = req.body;
 
     const contact = { country_code, phone_no };
-    const user = new User({
-      email,
-      username,
-      contact,
-      rescue_team: rescue_team_id,
-    });
+    let user = "";
+    if (rescue_team_id) {
+      user = new User({
+        email,
+        username,
+        contact,
+        rescue_team: rescue_team_id,
+      });
+    } else {
+      user = new User({
+        email,
+        username,
+        contact,
+      });
+    }
     const registeredUser = await User.register(user, password);
     req.login(registeredUser, (err) => {
       if (err) {
         return next(err);
       }
     });
-    console.log(req.user);
     res.send({ user: req.user, message: "Registered successfully" });
   } catch (e) {
+    console.log(e);
     res.status(409).send({ message: e.message });
   }
 };

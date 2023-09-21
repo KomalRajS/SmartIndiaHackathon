@@ -3,7 +3,15 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import MonitorMap from "./RescueCenterComponents/MonitorMap";
 import NavBar from "../Navbar/Navbar";
-import { Row, Col, Card, Placeholder, Alert, Form } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Card,
+  Placeholder,
+  Alert,
+  Form,
+  Button,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../Context";
 import { v4 as uuidv4 } from "uuid";
@@ -17,6 +25,7 @@ export default function RescueCenterRequestBaord() {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
   const { user: User } = useUserContext();
+  const [assigned, setAssigned] = useState();
   useEffect(() => {
     async function fetchData() {
       try {
@@ -46,9 +55,9 @@ export default function RescueCenterRequestBaord() {
     fetchData();
   }, []);
 
-  function asign(teamMember) {
-    console.log(teamMember);
-    socket.emit("asign", teamMember._id, teamMember);
+  function asign(teammember) {
+    console.log("hey", teammember);
+    socket.emit("asign", teammember);
   }
   return (
     <>
@@ -68,9 +77,10 @@ export default function RescueCenterRequestBaord() {
                       <p>{JSON.stringify(e.username)}</p>
 
                       <Form.Select onChange={(e) => asign(e.target.value)}>
+                        <option>select</option>
                         {teamMembers &&
                           teamMembers.map((e) => (
-                            <option value={e}>{e.username}</option>
+                            <option value={e._id}>{e.username}</option>
                           ))}
                       </Form.Select>
                     </>

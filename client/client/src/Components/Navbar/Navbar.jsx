@@ -35,15 +35,26 @@ const NavBar = ({ searchbox }) => {
             <Nav.Link href="#" disabled>
               Link
             </Nav.Link>
+
+            {user && (
+              <>
+                <div className="text-white align-self-center">
+                  {user.username}
+                </div>
+              </>
+            )}
           </Nav>
           <Form className="d-flex justify-content-start">{searchbox}</Form>
+
           {user && (
-            <>
-              <div className="text-white">{user.username}</div>
-              <Button onClick={(e) => logoutUser()}>logout</Button>
-            </>
+            <Button
+              className="text-white"
+              variant="dark"
+              onClick={(e) => logoutUser()}
+            >
+              logout
+            </Button>
           )}
-          {}
         </Navbar.Collapse>
       </Container>
     </Navbar>
